@@ -4,7 +4,7 @@ import axios from 'axios';
 const token = localStorage.getItem("token");
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5000/api/',
+  baseURL: 'https://gym-tracker-4.onrender.com/api/',
   headers: {
     Authorization: token ? `Bearer ${token}` : '',
   },
