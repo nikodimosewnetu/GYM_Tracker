@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     rollupOptions: {
-      external: ['react-router-dom']  // Add this line if you're explicitly excluding it
+      external: []  // Add this line if you're explicitly excluding it
     }
   }
 })

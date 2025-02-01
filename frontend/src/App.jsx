@@ -8,7 +8,8 @@ import { AuthProvider } from "./context/AuthContext";
 function App() {
   return (
     <AuthProvider>
-      <Router future={{ v7_relativeSplatPath: true }}> {/* Enable early flag */}
+      {/* Use BrowserRouter without any future flags */}
+      <Router>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
