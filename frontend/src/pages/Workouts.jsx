@@ -46,15 +46,22 @@ const Workouts = () => {
       console.error("Error deleting workout", error);
     }
   };
-
-  const handleAddWorkout = (newWorkout) => {
-    const updatedWorkouts = [...workouts, newWorkout];
-    setWorkouts(updatedWorkouts);
-    setShowAddWorkout(false);
-    // Save updated workouts to localStorage
-    localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
+  const handleAddWorkout = async (newWorkout) => {
+    try {
+      // Create the workout in the backend
+      const { data } = await createWorkout(newWorkout);
+      // Update local state and localStorage with the new workout
+      const updatedWorkouts = [...workouts, data];
+      setWorkouts(updatedWorkouts);
+      setShowAddWorkout(false);
+      // Persist workouts to localStorage
+      localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
+    } catch (error) {
+      setError("Failed to add workout. Please try again.");
+      console.error("Error adding workout", error);
+    }
   };
-
+  
   return (
     <>
       <Logout />
