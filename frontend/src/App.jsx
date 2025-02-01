@@ -8,6 +8,7 @@ import { AuthProvider } from "./context/AuthContext"; // Add this import
 function App() {
   return (
     <AuthProvider> {/* Wrap your entire app with AuthProvider */}
+      <BrowserRouter>
       <Router>
        
         <Routes>
@@ -17,6 +18,7 @@ function App() {
           <Route path="/workouts" element={<Workouts />} />
         </Routes>
       </Router>
+      </BrowserRouter>
     </AuthProvider>
   );
 }
