@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";  // Correctly import BrowserRouter
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -7,8 +7,8 @@ import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
-    <AuthProvider>  {/* Wrap your entire app with AuthProvider */}
-      <Router>
+    <AuthProvider>
+      <Router future={{ v7_relativeSplatPath: true }}> {/* Enable early flag */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
