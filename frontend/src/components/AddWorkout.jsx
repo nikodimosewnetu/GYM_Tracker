@@ -7,6 +7,7 @@ const AddWorkout = ({ onAdd, workoutToEdit, onEdit }) => {
   const [reps, setReps] = useState("");
   const [error, setError] = useState("");
 
+  // Populate the form with the workout data if editing
   useEffect(() => {
     if (workoutToEdit) {
       setTitle(workoutToEdit.title);
@@ -20,7 +21,7 @@ const AddWorkout = ({ onAdd, workoutToEdit, onEdit }) => {
     e.preventDefault();
     setError("");
 
-    // Validate form
+    // Validate form fields
     if (!title || isNaN(load) || isNaN(reps)) {
       setError("Please fill in all fields correctly.");
       return;

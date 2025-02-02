@@ -11,7 +11,7 @@ const Workouts = () => {
   const [showAddWorkout, setShowAddWorkout] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [workoutToEdit, setWorkoutToEdit] = useState(null); 
+  const [workoutToEdit, setWorkoutToEdit] = useState(null);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -82,9 +82,11 @@ const Workouts = () => {
     try {
       const workoutId = workoutToEdit._id;
       const response = await updateWorkout(workoutId, updatedWorkout);
+      
+      // Update the state without refreshing
       setWorkouts((prevWorkouts) =>
         prevWorkouts.map((workout) =>
-          workout._id === workoutId ? response.data : workout
+          workout._id === workoutId ? response : workout
         )
       );
       setShowAddWorkout(false);
@@ -136,9 +138,9 @@ const Workouts = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {workouts.length > 0 ? (
-          workouts.map((workout, index) => (
+          workouts.map((workout) => (
             <WorkoutCard
-              key={workout._id || `${workout.title}-${index}`}
+              key={workout._id}
               workout={workout}
               onDelete={handleDelete}
               onEdit={handleEditClick}
