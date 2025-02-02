@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getWorkouts, deleteWorkout, createWorkout, updateWorkout } from "../api/workouts";
+import { getWorkouts, deleteWorkout, createWorkout, updateWorkout } from "../api/workout";
 import WorkoutCard from "../components/WorkoutCard";
 import AddWorkout from "../components/AddWorkout";
 import Logout from "../components/Logout";
@@ -10,30 +10,29 @@ const Workouts = () => {
   const [workouts, setWorkouts] = useState([]);
   const [showAddWorkout, setShowAddWorkout] = useState(false);
   const [error, setError] = useState(null);
-  const [workoutToEdit, setWorkoutToEdit] = useState(null); // To store workout data for editing
+  const [loading, setLoading] = useState(true);
+  const [workoutToEdit, setWorkoutToEdit] = useState(null); 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
+  // Decode token to get user ID
   const getUserIdFromToken = () => {
     try {
       const decodedToken = jwtDecode(token);
-      if (decodedToken.id) {
-        return decodedToken.id;
-      } else {
-        throw new Error("User ID not found in token");
-      }
+      return decodedToken.id || null;
     } catch (error) {
       console.error("Invalid token:", error);
       return null;
     }
   };
 
+  // Fetch workouts on component mount or token change
   useEffect(() => {
     if (!token) {
       navigate("/login");
-    } else {
-      fetchWorkouts();
+      return;
     }
+    fetchWorkouts();
   }, [token, navigate]);
 
   const fetchWorkouts = async () => {
@@ -48,11 +47,14 @@ const Workouts = () => {
         navigate("/login");
       }
     } catch (error) {
-      setError("Failed to load workouts. Please check your connection or try again later.");
+      setError("Failed to load workouts. Please check your connection.");
       console.error("Error fetching workouts:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Handle workout deletion
   const handleDelete = async (id) => {
     try {
       await deleteWorkout(id);
@@ -64,19 +66,21 @@ const Workouts = () => {
     }
   };
 
+  // Handle adding a new workout
   const handleAddWorkout = async (newWorkout) => {
     try {
       const addedWorkout = await createWorkout(newWorkout);
       setWorkouts((prevWorkouts) => [...prevWorkouts, addedWorkout]);
       setShowAddWorkout(false);
     } catch (error) {
-      setError("Failed to add workout. Please try again.");
+      setError("Failed to add workout.");
     }
   };
 
+  // Handle updating a workout
   const handleEditWorkout = async (updatedWorkout) => {
     try {
-      const workoutId = workoutToEdit._id; // Get the ID of the workout being edited
+      const workoutId = workoutToEdit._id;
       const response = await updateWorkout(workoutId, updatedWorkout);
       setWorkouts((prevWorkouts) =>
         prevWorkouts.map((workout) =>
@@ -84,16 +88,25 @@ const Workouts = () => {
         )
       );
       setShowAddWorkout(false);
-      setWorkoutToEdit(null); // Reset the workout being edited
+      setWorkoutToEdit(null);
     } catch (error) {
-      setError("Failed to update workout. Please try again.");
+      setError("Failed to update workout.");
     }
   };
 
+  // Handle click for editing a workout
   const handleEditClick = (workout) => {
-    setWorkoutToEdit(workout); // Set workout data for editing
-    setShowAddWorkout(true); // Show the form for editing
+    setWorkoutToEdit(workout);
+    setShowAddWorkout(true);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-indigo-500 to-purple-700 p-8 text-white">
+        <h2 className="text-3xl font-extrabold text-center mb-6">Loading Workouts...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-500 to-purple-700 p-8 text-white">
@@ -122,21 +135,20 @@ const Workouts = () => {
       {error && <p className="text-center text-red-500">{error}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {workouts.length > 0 ? (
-  workouts.map((workout) => (
-    <WorkoutCard
-      key={workout._id}  // Ensure a unique key based on workout._id
-      workout={workout}
-      onDelete={handleDelete}
-      onEdit={handleEditClick}  // Pass handleEditClick to WorkoutCard
-    />
-  ))
-) : (
-  <div className="col-span-full text-center text-lg text-gray-300">
-    No workouts found. Please add one!
-  </div>
-)}
-
+        {workouts.length > 0 ? (
+          workouts.map((workout, index) => (
+            <WorkoutCard
+              key={workout._id || `${workout.title}-${index}`}
+              workout={workout}
+              onDelete={handleDelete}
+              onEdit={handleEditClick}
+            />
+          ))
+        ) : (
+          <div className="col-span-full text-center text-lg text-gray-300">
+            No workouts found. Please add one!
+          </div>
+        )}
       </div>
     </div>
   );
