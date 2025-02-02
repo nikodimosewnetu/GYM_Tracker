@@ -1,60 +1,48 @@
-import React, { useState } from 'react';
-import { createWorkout } from '../api/workouts'; // Import the createWorkout function
-import { jwtDecode } from "jwt-decode"; // Correct default import for jwt-decode
+import React, { useState, useEffect } from "react";
 
-const token = localStorage.getItem("token");
-let userId = null;
+const AddWorkout = ({ onAdd, workoutToEdit, onEdit }) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [load, setLoad] = useState("");
+  const [reps, setReps] = useState("");
+  const [error, setError] = useState("");
 
-if (token) {
-  try {
-    const decoded = jwtDecode(token);  // Decode the token to get user data
-    userId = decoded.id; // Change userId to id as per your token structure
-  } catch (error) {
-    console.error("Error decoding token:", error);
-  }
-}
+  useEffect(() => {
+    if (workoutToEdit) {
+      setTitle(workoutToEdit.title);
+      setDescription(workoutToEdit.exercises[0]?.description || "");
+      setLoad(workoutToEdit.exercises[0]?.load || "");
+      setReps(workoutToEdit.exercises[0]?.reps || "");
+    }
+  }, [workoutToEdit]);
 
-const AddWorkout = ({ onAdd }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [load, setLoad] = useState('');
-  const [reps, setReps] = useState('');
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
+    // Validate form
     if (!title || isNaN(load) || isNaN(reps)) {
       setError("Please fill in all fields correctly.");
       return;
     }
 
-    const newWorkout = { 
-      title, 
-      user: userId,  // Include user ID in the payload
-      exercises: [{ description, load: Number(load), reps: Number(reps) }]
+    const workoutData = {
+      title,
+      exercises: [{ description, load: Number(load), reps: Number(reps) }],
     };
 
-    try {
-      if (token && userId) {
-        const { data } = await createWorkout(newWorkout, token);
-        onAdd(data);  // Update parent component with the new workout
-      } else {
-        setError("No token or user ID found!");
-      }
-    } catch (error) {
-      setError("Error adding workout: " + (error.response ? error.response.data : error.message));
+    if (workoutToEdit) {
+      onEdit(workoutData); // Update the workout if we're editing
+    } else {
+      onAdd(workoutData); // Add the workout if it's a new one
     }
   };
 
-  if (!token || !userId) {
-    return <div className="text-red-500 text-center font-semibold">No token or user ID found!</div>;  // Display this message if there's no token or user ID
-  }
-
   return (
     <div className="bg-white p-8 rounded-lg shadow-xl max-w-lg mx-auto mt-8">
-      <h2 className="text-3xl font-semibold text-center text-indigo-700 mb-6">Add New Workout</h2>
+      <h2 className="text-3xl font-semibold text-center text-indigo-700 mb-6">
+        {workoutToEdit ? "Edit Workout" : "Add New Workout"}
+      </h2>
 
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
@@ -65,7 +53,7 @@ const AddWorkout = ({ onAdd }) => {
             placeholder="Workout Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 placeholder-gray-400"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
           />
         </div>
 
@@ -75,7 +63,7 @@ const AddWorkout = ({ onAdd }) => {
             placeholder="Workout Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 placeholder-gray-400"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
           />
         </div>
 
@@ -86,7 +74,7 @@ const AddWorkout = ({ onAdd }) => {
               placeholder="Load (kg)"
               value={load}
               onChange={(e) => setLoad(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 placeholder-gray-400"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
             />
           </div>
 
@@ -96,7 +84,7 @@ const AddWorkout = ({ onAdd }) => {
               placeholder="Reps"
               value={reps}
               onChange={(e) => setReps(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 placeholder-gray-400"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
             />
           </div>
         </div>
@@ -104,9 +92,9 @@ const AddWorkout = ({ onAdd }) => {
         <div>
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-300"
+            className="w-full py-3 bg-blue-600 text-white rounded-lg"
           >
-            Add Workout
+            {workoutToEdit ? "Update Workout" : "Add Workout"}
           </button>
         </div>
       </form>

@@ -6,10 +6,12 @@ module.exports = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET);
-    req.user = decoded.id;
+    req.user = decoded; // Store the user object in the request
 
     next();
   } catch (err) {
     res.status(401).json({ msg: "Token is not valid" });
   }
 };
+
+

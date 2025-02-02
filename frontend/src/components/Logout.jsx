@@ -7,6 +7,7 @@ const Logout = () => {
   const handleLogout = () => {
     // Remove token from localStorage to log out
     localStorage.removeItem("token");
+    localStorage.removeItem("userId");
     navigate("/"); // Redirect to login page after logout (or home page)
   };
 

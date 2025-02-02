@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api/auth"; // Assuming you have a login API method
+import { loginUser } from "../api/auth";
 import Navbar from "../components/Navbar";
 
 const Login = () => {
@@ -12,29 +12,25 @@ const Login = () => {
   // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-
-    // Clear error when user starts typing again
-    if (error) setError("");
+    if (error) setError("");  // Clear error if the user starts typing
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading
-    setError(""); // Reset error
+    setLoading(true);
+    setError("");
 
     try {
-      const response = await loginUser(formData); // ✅ `response` directly contains { token, user }
-
-      console.log("Login successful:", response); // Debug log
-
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("userId", response.user.id);
-      navigate("/workouts"); // Redirect to workouts page
+      const response = await loginUser(formData); // Login API call
+      console.log("Login successful:", response);
+      localStorage.setItem("token", response.token);  // Store token
+      localStorage.setItem("userId", response.user._id);  // Store user ID
+      navigate("/workouts");  // Redirect to workouts page after login
     } catch (err) {
       setError(err.response?.data?.msg || "Invalid email or password");
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
@@ -46,9 +42,7 @@ const Login = () => {
           <h2 className="text-3xl font-extrabold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
             Welcome Back!
           </h2>
-
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-
           <form onSubmit={handleSubmit} className="space-y-6">
             <input
               type="email"
@@ -59,7 +53,6 @@ const Login = () => {
               required
               className="w-full px-5 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 ease-in"
             />
-
             <input
               type="password"
               name="password"
@@ -69,13 +62,10 @@ const Login = () => {
               required
               className="w-full px-5 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200 ease-in"
             />
-
             <button
               type="submit"
               className={`w-full py-3 rounded-lg text-lg font-semibold transition duration-300 ease-in-out ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700 transform hover:scale-105"
+                loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700 transform hover:scale-105"
               }`}
               disabled={loading}
             >

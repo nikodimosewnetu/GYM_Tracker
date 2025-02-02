@@ -11,16 +11,28 @@ exports.getWorkouts = async (req, res) => {
 };
 
 // ✅ Add a Workout
+// ✅ Add a Workout
+// ✅ Add a Workout
+// Add a Workout
 exports.addWorkout = async (req, res) => {
   try {
     const { title, exercises } = req.body;
-    const newWorkout = new Workout({ user: req._id, title, exercises });
+
+    // Check if title and exercises are provided
+    if (!title || !exercises) {
+      return res.status(400).json({ msg: "Title and exercises are required" });
+    }
+
+    const newWorkout = new Workout({ user: req.user.id, title, exercises });
     await newWorkout.save();
+
     res.json(newWorkout);
   } catch (error) {
+    console.error("Error in addWorkout:", error.message); // Log the error for better debugging
     res.status(500).json({ msg: "Error adding workout", error: error.message });
   }
 };
+
 
 // ✅ Update a Workout
 exports.updateWorkout = async (req, res) => {
@@ -44,6 +56,11 @@ exports.deleteWorkout = async (req, res) => {
     const workout = await Workout.findById(req.params.id);
     if (!workout) return res.status(404).json({ msg: "Workout not found" });
 
+    // Check if workout.user is defined and matches the logged-in user
+    if (!workout.user) {
+      return res.status(500).json({ msg: "Workout has no associated user" });
+    }
+
     if (workout.user.toString() !== req.user.id)
       return res.status(401).json({ msg: "Unauthorized" });
 
@@ -53,3 +70,5 @@ exports.deleteWorkout = async (req, res) => {
     res.status(500).json({ msg: "Error deleting workout", error: error.message });
   }
 };
+
+

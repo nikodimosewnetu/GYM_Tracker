@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Fetch the token each time an API request is made
 const axiosInstance = axios.create({
-  baseURL: 'https://gym-tracker-4.onrender.com/api/',
+  baseURL: 'http://localhost:5000/api/',
 });
 
 axiosInstance.interceptors.request.use((config) => {
